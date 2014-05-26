@@ -14,6 +14,7 @@ public class NotepadScreen extends JTextArea implements ActionListener {
 	private FileMenu file;
 	private EditMenu edit;
 	private FormatMenu format;
+	private ViewMenu view;
 	
 	private UndoManager uManager;
 	
@@ -24,25 +25,30 @@ public class NotepadScreen extends JTextArea implements ActionListener {
 		
 		// Creating menu bar
 		JMenuBar menuBar = new JMenuBar();
+
+		// Setting it's font (has to be done before 
+		// creation of FormatMenu
+		setFont( new Font("Consolas", Font.PLAIN, 14));
 		
 		// Creating Menus 
 		file = new FileMenu(this);
 		edit = new EditMenu(this);
 		format = new FormatMenu(this);
+		view = new ViewMenu(this);
 		
 		getDocument().addDocumentListener(file.initSaveMonitor());
 		frame.addWindowListener(file.initExitMonitor());
 		addCaretListener(edit.initEditValidator());
-
+		addCaretListener(view.initStatusMonitor());
+		
 		// Creating undo/redo manager and etc
 		getDocument().addUndoableEditListener(edit.initUndoManager());
 		
-		// Setting it's font
-		setFont( new Font("Consolas", Font.PLAIN, 14));
 		
 		menuBar.add(file);
 		menuBar.add(edit);
 		menuBar.add(format);
+		menuBar.add(view);
 		frame.setJMenuBar(menuBar);
 		
 		file.resetDocument();
@@ -51,6 +57,7 @@ public class NotepadScreen extends JTextArea implements ActionListener {
 	// ActionListener must be added to each individual element in 
 	// a menu.
 	public void actionPerformed(ActionEvent e) {
+	/*
 		if ("new".equals(e.getActionCommand())) {
 		   file.newFile();
 		} else if ("open".equals(e.getActionCommand())) {
@@ -79,12 +86,33 @@ public class NotepadScreen extends JTextArea implements ActionListener {
 		   edit.timeDate();
 		} else if ("select all".equals(e.getActionCommand())) {
 		   edit.selectAll();
-		} /*else if ("word wrap".equals(e.getActionCommand())) {
-		   formatWordWrap();
+		} else if ("word wrap".equals(e.getActionCommand())) {
+		   format.wordWrap();
 		} else if ("font".equals(e.getActionCommand())) {
-		   formatFont();
+		   format.font();
+		} else if ("status bar".equals(e.getActionCommand())) {
+		   view.statusBar();
 		}
 	*/	
+		switch (e.getActionCommand()) {
+			case "new": 		file.newFile(); break;
+			case "open": 		file.open(); break;
+			case "save": 		file.save(); break;
+			case "save as": 	file.saveAs(); break;
+			case "exit": 		file.exit(); break;
+			case "undo": 		edit.undo(); break;
+			case "redo": 		edit.redo(); break;
+			case "delete": 		edit.delete(); break;
+			case "find": 		edit.find(); break;
+			case "find next": 	edit.findNext(); break;
+			case "replace": 	edit.replace(); break;
+			case "goto": 		edit.goTo(); break;
+			case "time date": 	edit.timeDate(); break;
+			case "select all": 	edit.selectAll(); break;
+			case "word wrap": 	format.wordWrap(); break;
+			case "font": 		format.font(); break;
+			case "status bar": 	view.statusBar(); break;
+		}
 	}	
 	
 	public void setTitle(String title) {

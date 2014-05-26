@@ -1,10 +1,21 @@
 import javax.swing.*;
+import javax.imageio.*; // For icon
+import java.io.*;		// for icon
+import javax.swing.UIManager.*; // For look and feel
 
 public class NotepadClone extends JFrame {
 	private NotepadScreen textArea;
 	private JScrollPane scroller;
 	
 	public NotepadClone() {
+		// Use system Look and Feel
+		try {UIManager.setLookAndFeel(
+			UIManager.getSystemLookAndFeelClassName());} 
+		catch (UnsupportedLookAndFeelException e) {e.printStackTrace();}
+		catch (ClassNotFoundException e) {e.printStackTrace();}
+		catch (InstantiationException e) {e.printStackTrace();}
+		catch (IllegalAccessException e) {e.printStackTrace();}
+		
 		textArea = new NotepadScreen(this);
 		
 		// adding text area to scrollbar
@@ -15,6 +26,14 @@ public class NotepadClone extends JFrame {
 		
 		// Adding scroller to the frame
 		add(scroller);
+		
+		// Setting icon for the window
+		try {
+			setIconImage(
+				ImageIO.read(
+				NotepadClone.class.getResource(
+				"res/Notepad.png")));
+		} catch (IOException e) {e.printStackTrace();}
 	}
 	
 	public static void main(String[] args) {

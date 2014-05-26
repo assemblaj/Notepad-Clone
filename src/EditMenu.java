@@ -54,12 +54,19 @@ public class EditMenu extends NotepadMenu {
 	
 	private int finPos;
 	
+	// For the popup menu stuff 
+	private JPopupMenu popup;
+	private JMenuItem popDeleteItem;
+	private JMenuItem popCutItem;
+	private JMenuItem popCopyItem;
+	
 	public EditMenu(NotepadScreen input) {
 		super("Edit", input);
 		this.input = input;
 		
 		uManager = new UndoManager();
 		makeMenu();
+		makePopupMenu();
 	}
 	
 	public void makeMenu() {
@@ -158,6 +165,45 @@ public class EditMenu extends NotepadMenu {
 	    add(timeDateItem);	
 	}
 	
+	public void makePopupMenu() {
+		popup = new JPopupMenu();
+		JMenuItem undoItem = new JMenuItem("Undo");
+		undoItem.setActionCommand("undo");
+		undoItem.addActionListener(input);
+		popup.add(undoItem);
+		
+		JMenuItem redoItem = new JMenuItem("Redo");
+		redoItem.setActionCommand("redo");
+		redoItem.addActionListener(input);
+		popup.add(redoItem);
+		
+		popup.addSeparator();
+		
+		popCutItem = new JMenuItem(new DefaultEditorKit.CutAction());
+		popCutItem.setText("Cut");
+		popCutItem.setEnabled(false); // since document is empty at first
+		popup.add(popCutItem);	
+		
+		popCopyItem = new JMenuItem(new DefaultEditorKit.CopyAction());
+		popCopyItem.setText("Copy");
+	    popCopyItem.setEnabled(false);
+		popup.add(popCopyItem);
+		
+		JMenuItem pasteItem = new JMenuItem(new DefaultEditorKit.PasteAction());
+		pasteItem.setText("Paste");
+		popup.add(pasteItem);
+		
+		popDeleteItem = new JMenuItem("Delete");
+		popDeleteItem.setActionCommand("delete");
+		popDeleteItem.addActionListener(input);
+		popDeleteItem.setEnabled(false);
+		popup.add(popDeleteItem);
+		
+		MouseListener popupListener = new PopupListener();
+		input.addMouseListener(popupListener);
+	}
+	
+	
 	public UndoManager initUndoManager() {
 		return uManager;
 	}
@@ -186,14 +232,6 @@ public class EditMenu extends NotepadMenu {
 	}
 	
 	public void createFindDialog() {
-	    // I need to addPropertyChangeListener() on the  Dialog box
-		// Then put logic in propertychange(PropertyChangeEvent e)
-		// That says what to do if the button is "Find", "Find Next", 
-		// etc
-		// Just add(stuff) to Jdialog to set up the GUI
-		// The Find Box needs :
-		//    Label TextArea Button
-		//    Check Box , Radio Buttons,  Button
 	    find = new JDialog(input.getFrame(), "Find", false);
 		find.setResizable(false);
 		find.setSize(500,175);
@@ -629,10 +667,16 @@ public class EditMenu extends NotepadMenu {
 			 deleteItem.setEnabled(false);
 			 cutItem.setEnabled(false);
 			 copyItem.setEnabled(false);
+			 popDeleteItem.setEnabled(false);
+			 popCutItem.setEnabled(false);
+			 popCopyItem.setEnabled(false);
 		  }else {
 			 deleteItem.setEnabled(true);
 			 cutItem.setEnabled(true);
 			 copyItem.setEnabled(true);
+			 popDeleteItem.setEnabled(true);
+			 popCutItem.setEnabled(true);
+			 popCopyItem.setEnabled(true);
 		  }
 		  
 		  if (input.getText() == null ||
@@ -650,5 +694,25 @@ public class EditMenu extends NotepadMenu {
 	
 	public EditValidator initEditValidator() {
 		return new EditValidator();
+	}
+	
+	// Displays the popup menu based on action decided by 
+	// local system. Could be on a mouse press or a mouse
+	// release based on the system. 
+	class PopupListener extends MouseAdapter {
+		public void mousePressed(MouseEvent e) {
+			showPopupMenu(e);
+		}
+		
+		public void mouseReleased(MouseEvent e) {
+			showPopupMenu(e);
+		}
+		
+		public void showPopupMenu(MouseEvent e) {
+			if (e.isPopupTrigger()) {
+				popup.show(e.getComponent(),
+					       e.getX(), e.getY());
+			}
+		}
 	}
 }
